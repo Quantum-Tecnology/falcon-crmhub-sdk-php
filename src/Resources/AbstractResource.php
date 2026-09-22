@@ -7,6 +7,7 @@ namespace QuantumTecnology\FalconCrmHub\Resources;
 use QuantumTecnology\FalconCrmHub\Auth\TokenManager;
 use QuantumTecnology\FalconCrmHub\CrmHubConfig;
 use QuantumTecnology\FalconCrmHub\Exceptions\AuthException;
+use QuantumTecnology\FalconCrmHub\Exceptions\ForbiddenException;
 use QuantumTecnology\FalconCrmHub\Exceptions\NotFoundException;
 use QuantumTecnology\FalconCrmHub\Exceptions\OptedOutException;
 use QuantumTecnology\FalconCrmHub\Exceptions\QuotaExceededException;
@@ -129,6 +130,19 @@ abstract class AbstractResource
                 (int) ($body['used'] ?? 0),
                 (int) ($body['limit'] ?? 0),
                 isset($body['code']) ? (string) $body['code'] : null,
+                $statusCode,
+                null,
+                $apiResponse,
+            ),
+            /*
+             * 403: a chave não tem a permissão da rota (`code: MISSING_ABILITY`,
+             * `ability` diz qual). Até a 1.x anterior, 403 caía no `default` e
+             * voltava como resposta comum — quem integra seguia achando que a
+             * mensagem tinha saído.
+             */
+            $statusCode === 403 => throw new ForbiddenException(
+                $apiResponse->message,
+                isset($body['ability']) ? (string) $body['ability'] : null,
                 $statusCode,
                 null,
                 $apiResponse,

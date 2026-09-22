@@ -119,3 +119,22 @@ it('expõe o código de negócio, que vem na raiz do envelope', function (): voi
         expect($e->getResponse()?->code)->toBe('TEMPLATE_NOT_FOUND');
     }
 });
+
+it('chave sem a permissão vira ForbiddenException, não resposta comum', function (): void {
+    [$messages, $http] = resourceWithFake(\QuantumTecnology\FalconCrmHub\Resources\Messages\MessageResource::class);
+
+    $http->queue(403, [
+        'message' => 'Esta chave de API não tem permissão para esta operação (messages:send).',
+        'code'    => 'MISSING_ABILITY',
+        'ability' => 'messages:send',
+    ]);
+
+    // Antes caía no `default` e voltava como ApiResponse: o integrado seguia
+    // achando que a mensagem tinha saído.
+    try {
+        $messages->send('+5519999999999', 'boas_vindas', []);
+        $this->fail('Deveria ter lançado ForbiddenException.');
+    } catch (\QuantumTecnology\FalconCrmHub\Exceptions\ForbiddenException $e) {
+        expect($e->getAbility())->toBe('messages:send');
+    }
+});
