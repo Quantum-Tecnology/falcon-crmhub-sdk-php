@@ -1,0 +1,57 @@
+{
+  "name": "quantumtecnology/falcon-crmhub-sdk",
+  "description": "PHP SDK for the Falcon Vendas (CrmHub) API — WhatsApp phone verification, transactional messaging and customer registration",
+  "license": "MIT",
+  "type": "library",
+  "keywords": [
+    "falcon",
+    "crmhub",
+    "falcon-vendas",
+    "whatsapp",
+    "phone-verification",
+    "transactional-messaging",
+    "crm",
+    "api",
+    "sdk"
+  ],
+  "homepage": "https://github.com/Quantum-Tecnology/falcon-crmhub-sdk-php",
+  "authors": [
+    {
+      "name": "Luis Gustavo Santarosa",
+      "email": "gustavo-computacao@hotmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "ext-curl": "*",
+    "ext-json": "*"
+  },
+  "suggest": {
+    "psr/simple-cache": "For persistent token caching (PSR-16)",
+    "psr/log": "For logging HTTP requests (PSR-3)"
+  },
+  "autoload": {
+    "psr-4": {
+      "QuantumTecnology\\FalconCrmHub\\": "src/"
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "require-dev": {
+    "pestphp/pest": "^2.0 || ^3.0"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "QuantumTecnology\\FalconCrmHub\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
