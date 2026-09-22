@@ -99,3 +99,23 @@ it('traduz texto livre não liberado em ValidationException', function (): void 
     expect(fn () => $messages->sendText('19999999999', 'oi'))
         ->toThrow(ValidationException::class);
 });
+
+it('expõe o código de negócio, que vem na raiz do envelope', function (): void {
+    [$messages, $http] = resourceWithFake(MessageResource::class);
+
+    $http->queue(422, [
+        'success' => false,
+        'message' => 'Não existe um modelo ativo com essa chave.',
+        // Raiz, irmão de `data` — não dentro dele.
+        'code' => 'TEMPLATE_NOT_FOUND',
+    ]);
+
+    try {
+        $messages->send('19999999999', 'nao_existe');
+        expect(false)->toBeTrue('deveria ter lançado');
+    } catch (ValidationException $e) {
+        // Sem isto, quem integra fica só com o 422 e não distingue "modelo não
+        // existe" de "faltou variável" — casos que exigem ações diferentes.
+        expect($e->getResponse()?->code)->toBe('TEMPLATE_NOT_FOUND');
+    }
+});

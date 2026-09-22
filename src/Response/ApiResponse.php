@@ -21,6 +21,10 @@ class ApiResponse
      * @param array<string, mixed>|list<mixed> $data
      * @param array<string, mixed> $errors
      * @param array<string, mixed> $meta
+     * @param string|null $code Código de negócio (TEMPLATE_NOT_FOUND, OPTED_OUT…).
+     *                          Fica na RAIZ do envelope, não dentro de `data` —
+     *                          e é ele que diz o que fazer, já que vários casos
+     *                          diferentes compartilham o mesmo HTTP 422.
      */
     public function __construct(
         public readonly bool $success,
@@ -29,6 +33,7 @@ class ApiResponse
         array $data = [],
         array $errors = [],
         array $meta = [],
+        public readonly ?string $code = null,
     ) {
         $this->data   = $data;
         $this->errors = $errors;
@@ -44,6 +49,7 @@ class ApiResponse
             'success'    => $this->success,
             'statusCode' => $this->statusCode,
             'message'    => $this->message,
+            'code'       => $this->code,
             'data'       => $this->data,
             'errors'     => $this->errors,
             'meta'       => $this->meta,
@@ -118,6 +124,10 @@ class ApiResponse
             data: $data,
             errors: $errors,
             meta: $meta,
+            // Raiz do envelope, irmão de `data`: é onde o Falcon Vendas põe o
+            // código de negócio. Sem ler daqui, quem integra fica só com o HTTP
+            // e não distingue "modelo não existe" de "faltou variável".
+            code: isset($body['code']) && is_string($body['code']) ? $body['code'] : null,
         );
     }
 }
